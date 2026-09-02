@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Heart Disease Prediction{% endblock %}
+
+{% block head %}
+<style>
+    .dash { width: 100%; max-width: 900px; text-align: center; }
+    .welcome { font-size: 30px; font-weight: 600; margin-bottom: 6px; }
+    .subtitle { color: #d1dccf; margin-bottom: 35px; }
+
+    .stats { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 35px; }
+    .stat { flex: 1; min-width: 180px; }
+    .stat .num { font-size: 34px; font-weight: 600; color: #4facfe; }
+    .stat .lbl { color: #cfd8dc; margin-top: 4px; }
+
+    .cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+    .action { flex: 1; min-width: 220px; text-align: center;
+              transition: transform 0.25s ease, box-shadow 0.25s ease; cursor: default; }
+    .action:hover { transform: translateY(-8px); box-shadow: 0 14px 32px rgba(0, 0, 0, 0.879); }
+    .action .icon { font-size: 40px; margin-bottom: 12px; }
+    .action h3 { margin-bottom: 8px; }
+    .action p { color: #cfdcd1f2; font-size: 14px; margin-bottom: 18px; }
+    .btn {
+        display: inline-block; padding: 12px 26px; border-radius: 8px;
+        background: #4dffa6e5; color: #fff; text-decoration: none; font-size: 15px; transition: 0.3s;
+    }
+    .btn:hover { background: #1affbee6; transform: scale(1.04); }
+    .btn.blue { background: #4facfe; }
+    .btn.blue:hover { background: #00c6ff; }
+
+    /* fade-in on load */
+    .dash > * { animation: fadeUp 0.6s ease both; }
+    .stats { animation-delay: 0.1s; }
+    .cards { animation-delay: 0.2s; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .stat .num { transition: 0.3s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dash">
+    <div class="welcome">Welcome, Riwan Ali &#128075;</div>
+    <div class="subtitle">Heart Disease Prediction Dashboard</div>
+
+    <div class="stats card">
+        <div class="stat"><div class="num">{{ total }}</div><div class="lbl">Total Predictions</div></div>
+        <div class="stat"><div class="num">{{ high }}</div><div class="lbl">High Risk Cases</div></div>
+        <div class="stat"><div class="num">3</div><div class="lbl">ML Models Used</div></div>
+    </div>
+
+    <div class="cards">
+        <div class="action card">
+            <div class="icon">&#129658;</div>
+            <h3>New Prediction</h3>
+            <p>Enter patient health data and get an instant heart disease risk result.</p>
+            <a href="/index" class="btn">+ New Entry</a>
+        </div>
+        <div class="action card">
+            <div class="icon">&#128203;</div>
+            <h3>Prediction History</h3>
+            <p>View all previous patient predictions saved in the database.</p>
+            <a href="/history" class="btn green">View History</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

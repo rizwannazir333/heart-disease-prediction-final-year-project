@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Result | Heart Disease Prediction{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .result-card { width: 760px; max-width: 96%; }
+    .result-card h2 { text-align: center; margin-bottom: 20px; }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
+
+    .panel { background: rgba(255,255,255,0.06); border-radius: 12px; padding: 20px; }
+    .panel h3 { font-size: 15px; color: #cfd8dc; margin-bottom: 14px; font-weight: 500; }
+
+    .patient p { display: flex; justify-content: space-between; padding: 7px 0;
+                 border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 14px; }
+    .patient p span:first-child { color: #cfd8dc; }
+
+    .risk-badge {
+        text-align: center; padding: 18px; border-radius: 12px; margin-bottom: 14px;
+    }
+    .risk-badge .label { font-size: 13px; color: #eee; letter-spacing: 1px; }
+    .risk-badge .value { font-size: 30px; font-weight: 700; margin-top: 4px; }
+    .risk-badge.Low { background: rgba(76,175,80,0.25); }
+    .risk-badge.Medium { background: rgba(255,184,77,0.25); }
+    .risk-badge.High { background: rgba(255,77,77,0.25); }
+    .Low .value, .Low.value { color: #7CFC8A; }
+    .Medium .value { color: #ffce85; }
+    .High .value { color: #ff8080; }
+    .prob { text-align: center; font-size: 15px; color: #cfd8dc; }
+    .prob b { color: #fff; font-size: 18px; }
+
+    .chart-wrap { position: relative; height: 220px; }
+
+    .actions { text-align: center; margin-top: 24px; }
+    .btn {
+        display: inline-block; margin: 6px; padding: 11px 20px; border: none; border-radius: 8px;
+        background: #4facfe; color: #fff; text-decoration: none; cursor: pointer; font-size: 14px; transition: 0.3s;
+    }
+    .btn:hover { background: #00c6ff; }
+    .btn.red { background: #ff4d4d; } .btn.red:hover { background: #ff1a1a; }
+    @media print { .navbar, .footer, .btn { display: none !important; } body { background: #fff; color: #000; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card result-card">
+    <h2>Prediction Result</h2>
+
+    <div class="cols">
+        <!-- LEFT: patient + risk -->
+        <div class="panel">
+            <div class="risk-badge {{ risk }}">
+                <div class="label">PREDICTED RISK</div>
+                <div class="value">{{ risk }}</div>
+            </div>
+            <div class="prob">Overall Probability: <b>{{ avg_prob }}%</b></div>
+
+            <div class="patient" style="margin-top:16px;">
+                <p><span>Patient</span><span>{{ name }}</span></p>
+                <p><span>Age</span><span>{{ age }} yrs</span></p>
+                <p><span>Sex</span><span>{{ sex }}</span></p>
+            </div>
+        </div>
+
+        <!-- RIGHT: chart -->
+        <div class="panel">
+            <h3>Model-wise Probability</h3>
+            <div class="chart-wrap"><canvas id="chart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a href="/index" class="btn red">+ New Prediction</a>
+        <a href="/history" class="btn">History</a>
+        <button class="btn" onclick="window.print()">Download Report</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    new Chart(document.getElementById('chart'), {
+        type: 'bar',
+        data: {
+            labels: ['Logistic Reg.', 'Random Forest'{% if ann_prob is not none %}, 'ANN'{% endif %}],
+            datasets: [{
+                data: [{{ lr_prob }}, {{ rf_prob }}{% if ann_prob is not none %}, {{ ann_prob }}{% endif %}],
+                backgroundColor: ['#4facfe', '#43e97b', '#f79d00'],
+                borderRadius: 6, barPercentage: 0.6
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false },
+                       tooltip: { callbacks: { label: c => c.parsed.y + '%' } } },
+            scales: {
+                y: { beginAtZero: true, max: 100, ticks: { color: '#cfd8dc', callback: v => v + '%' },
+                     grid: { color: 'rgba(255,255,255,0.08)' } },
+                x: { ticks: { color: '#fff' }, grid: { display: false } }
+            }
+        }
+    });
+</script>
+{% endblock %}

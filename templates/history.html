@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}History | Heart Disease Prediction{% endblock %}
+
+{% block head %}
+<style>
+    .hist { width: 100%; max-width: 920px; }
+    .hist h2 { text-align: center; margin-bottom: 4px; }
+    .hist .count { text-align: center; color: #cfd8dc; font-size: 14px; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 10px; }
+    th, td { padding: 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.12); font-size: 14px; }
+    th { background: rgba(0,0,0,0.35); }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.04); }
+    tr:hover td { background: rgba(255,255,255,0.09); }
+    .Low { color: #7CFC8A; font-weight: 600; }
+    .Medium { color: #ffce85; font-weight: 600; }
+    .High { color: #ff8080; font-weight: 600; }
+    .del {
+        color: #ff8080; text-decoration: none; font-size: 16px; padding: 4px 8px; border-radius: 6px;
+    }
+    .del:hover { background: rgba(255,77,77,0.2); }
+    .empty { text-align: center; color: #cfd8dc; padding: 20px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hist card">
+    <h2>Past Predictions</h2>
+    <p class="count">Total records: {{ rows|length }}</p>
+    {% if rows %}
+    <table>
+        <tr>
+            <th>#</th><th>Name</th><th>Age</th><th>Sex</th>
+            <th>Risk</th><th>Probability</th><th>Date</th><th>Action</th>
+        </tr>
+        {% for r in rows %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ r[1] if r[1] and r[1] != 'None' else '—' }}</td>
+            <td>{{ r[2] | int }}</td>
+            <td>{{ 'Male' if r[3] == 1 else 'Female' }}</td>
+            <td class="{{ r[4] }}">{{ r[4] }}</td>
+            <td>{{ r[5] }}%</td>
+            <td>{{ r[6] }}</td>
+            <td><a href="/delete/{{ r[0] }}" class="del" title="Delete"
+                   onclick="return confirm('Delete this record?')">🗑</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p class="empty">No predictions yet. Make your first prediction!</p>
+    {% endif %}
+</div>
+{% endblock %}
