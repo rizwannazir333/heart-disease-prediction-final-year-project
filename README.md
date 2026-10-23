@@ -53,6 +53,7 @@ Python, TensorFlow/Keras, scikit-learn, Pandas, NumPy, Flask, MySQL, HTML/CSS (J
 ├── models.py           # Loads trained models and makes predictions
 ├── train_model.py      # Cleans data, trains and saves all three models
 ├── evaluate.py         # Seeded, reproducible evaluation (metrics + confusion matrices)
+├── cross_validate.py   # Cross-validation: drop rows vs median imputation
 ├── test_data.py        # Dataset sanity checks (run with pytest)
 ├── MODEL_CARD.md       # Intended use, data, limitations
 ├── heart.csv           # Dataset
@@ -110,6 +111,13 @@ Python, TensorFlow/Keras, scikit-learn, Pandas, NumPy, Flask, MySQL, HTML/CSS (J
 python evaluate.py
 ```
 
+`cross_validate.py` compares the two ways of handling missing data on the same models: dropping incomplete rows (298 records) versus median imputation (all 597 records). Imputation is done inside each cross-validation fold so nothing leaks from the validation data. It uses repeated stratified 5-fold cross-validation and writes `results/cv_results.md`.
+
+```bash
+python cross_validate.py          # Logistic Regression and Random Forest
+python cross_validate.py --ann    # also the neural network (slower)
+```
+
 For a screening task like this, recall (how many true disease cases are caught) matters at least as much as accuracy, so check the confusion matrices rather than accuracy alone.
 
 ## Responsible use
@@ -127,11 +135,11 @@ For a screening task like this, recall (how many true disease cases are caught) 
 
 ## Planned improvements
 
-- Stratified k-fold cross-validation and hyperparameter search instead of a single split
+- Hyperparameter search (cross-validation is already available in `cross_validate.py`)
 - Probability calibration and a proper multiclass or ordinal model for risk levels
 - Explainability (for example SHAP feature importance) so predictions can be inspected
 - Fairness checks across age and sex, and validation on an external dataset
-- Impute missing values instead of dropping about half of the records
+- Retrain the deployed models with imputation if `cross_validate.py` shows it helps, instead of dropping about half of the records
 - Real authentication with hashed passwords and per-user accounts
 
 ## Author
