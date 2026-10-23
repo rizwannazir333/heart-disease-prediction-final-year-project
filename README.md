@@ -14,9 +14,22 @@ Final year project, BSc Software Engineering, Virtual University of Pakistan.
 - Flask web app with a login page, dashboard, prediction form, result page and about page
 - Prediction history stored in MySQL, with a page to review and delete records
 
+## Dataset
+
+`heart.csv` has 597 patient records with 13 clinical features and a target graded 0 (no disease) to 4. Checked directly from the file:
+
+| | Records |
+| --- | --- |
+| Total records | 597 |
+| Records with at least one missing value | 299 |
+| Complete records used for training and testing | 298 |
+| Complete records, no disease (0) / disease (1 to 4) | 160 / 138 |
+
+Because about half of the records are dropped, the 20% test set holds only around 60 patients, so single-split accuracy figures are noisy. Imputing missing values instead of dropping them is a planned improvement.
+
 ## How it works
 
-1. **Data cleaning:** the dataset (`heart.csv`, 13 clinical features plus a target column) has `?` placeholders replaced with missing values; incomplete rows are dropped and all columns are converted to numeric.
+1. **Data cleaning:** any row with a missing value (`?` or blank) is dropped, and all columns are converted to numeric. See the Dataset section for how much data this removes.
 2. **Target:** the original target (0 to 4) is converted to a binary label: `0` means no disease, anything above 0 means disease.
 3. **Split and scaling:** an 80/20 train/test split (`random_state=42`), then `StandardScaler` fitted on the training set only.
 4. **Models:**
@@ -40,6 +53,8 @@ Python, TensorFlow/Keras, scikit-learn, Pandas, NumPy, Flask, MySQL, HTML/CSS (J
 ├── models.py           # Loads trained models and makes predictions
 ├── train_model.py      # Cleans data, trains and saves all three models
 ├── evaluate.py         # Seeded, reproducible evaluation (metrics + confusion matrices)
+├── test_data.py        # Dataset sanity checks (run with pytest)
+├── MODEL_CARD.md       # Intended use, data, limitations
 ├── heart.csv           # Dataset
 ├── *_model.pkl / ann_model.h5, scaler.pkl, *_accuracy.pkl   # Saved models and scores
 ├── templates/          # HTML pages
@@ -55,7 +70,15 @@ Python, TensorFlow/Keras, scikit-learn, Pandas, NumPy, Flask, MySQL, HTML/CSS (J
    pip install -r requirements.txt
    ```
 
-2. Make sure MySQL is running, then set your MySQL username and password in `DB_CONFIG` in `app.py`. The `heart_db` database and `history` table are created automatically on first run.
+2. Make sure MySQL is running. The app reads its settings from environment variables, and the defaults suit a local setup with an empty root password. The `heart_db` database and `history` table are created automatically on first run.
+
+   | Variable | Default | Purpose |
+   | --- | --- | --- |
+   | `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` | `localhost` / `root` / empty / `heart_db` | MySQL connection |
+   | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | `admin` / `123` | Demo login |
+   | `FLASK_DEBUG` | `1` | Set to `0` to turn off debug mode |
+
+   Example: `export DB_PASSWORD="your-password" ADMIN_PASSWORD="a-stronger-password"`
 
 3. (Optional) Retrain the models. Trained models are already included, so this is only needed if you change the data or model settings:
 
@@ -71,7 +94,13 @@ Python, TensorFlow/Keras, scikit-learn, Pandas, NumPy, Flask, MySQL, HTML/CSS (J
    python app.py
    ```
 
-   Then open `http://127.0.0.1:5000`. The demo login is `admin` / `123`.
+   Then open `http://127.0.0.1:5000`. Unless you set `ADMIN_USERNAME` and `ADMIN_PASSWORD`, the demo login is `admin` / `123`.
+
+5. Run the data checks (they need only Python, no TensorFlow or MySQL):
+
+   ```bash
+   pytest
+   ```
 
 ## Evaluation
 
@@ -91,9 +120,10 @@ For a screening task like this, recall (how many true disease cases are caught) 
 
 ## Limitations
 
-- The login is a hard-coded demo account, not real authentication, and the database password is set in the source file. Do not deploy this as is.
-- Training uses a single train/test split and no hyperparameter search, so the reported accuracy is a rough estimate.
-- The dataset is small, and the three-level risk bands are a simple threshold on the averaged probability rather than a trained multiclass model.
+- The login is a single shared demo account with a plain-text password, not real authentication. Do not deploy this as is.
+- Training uses a single train/test split and no hyperparameter search, so reported accuracy is a rough estimate.
+- Only 298 complete records are used and the test set is about 60 patients, so results will vary a lot between splits.
+- The three-level risk bands are a simple threshold on the averaged probability, not a trained multiclass model.
 
 ## Planned improvements
 
@@ -101,7 +131,8 @@ For a screening task like this, recall (how many true disease cases are caught) 
 - Probability calibration and a proper multiclass or ordinal model for risk levels
 - Explainability (for example SHAP feature importance) so predictions can be inspected
 - Fairness checks across age and sex, and validation on an external dataset
-- Real authentication and environment-based configuration for secrets
+- Impute missing values instead of dropping about half of the records
+- Real authentication with hashed passwords and per-user accounts
 
 ## Author
 

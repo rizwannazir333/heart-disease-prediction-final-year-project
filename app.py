@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime
 import mysql.connector
@@ -8,13 +9,17 @@ app = Flask(__name__)
 FIELDS = ["age", "sex", "cp", "trestbps", "chol", "fbs", "restecg",
           "thalach", "exang", "oldpeak", "slope", "ca", "thal"]
 
-# ---------------- MySQL config (change these to match your MySQL) ----------------
+# ---------------- Configuration (set environment variables to override) ----------------
 DB_CONFIG = {
-    "host": "localhost",
-    "user": "root",
-    "password": "",       # <-- your MySQL password
-    "database": "heart_db",
+    "host": os.environ.get("DB_HOST", "localhost"),
+    "user": os.environ.get("DB_USER", "root"),
+    "password": os.environ.get("DB_PASSWORD", ""),
+    "database": os.environ.get("DB_NAME", "heart_db"),
 }
+
+# Demo login. Override with real values via environment variables.
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "123")
 
 
 def get_db():
@@ -54,7 +59,7 @@ def home():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        if request.form["username"] == "admin" and request.form["password"] == "123":
+        if request.form["username"] == ADMIN_USERNAME and request.form["password"] == ADMIN_PASSWORD:
             return redirect(url_for("dashboard"))
         return render_template("login.html", error="Invalid username or password")
     return render_template("login.html")
@@ -135,4 +140,4 @@ def delete(record_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=os.environ.get("FLASK_DEBUG", "1") == "1")

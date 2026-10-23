@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this project, please cite it as below."
+title: "Heart Disease Prediction Using Machine Learning and Deep Learning"
+type: software
+authors:
+  - family-names: "Ali"
+    given-names: "Rizwan"
+repository-code: "https://github.com/rizwannazir333/heart-disease-prediction-final-year-project"
+keywords:
+  - healthcare AI
+  - heart disease prediction
+  - machine learning
+  - deep learning
+  - TensorFlow
