@@ -39,6 +39,7 @@ Python, TensorFlow/Keras, scikit-learn, Pandas, NumPy, Flask, MySQL, HTML/CSS (J
 ├── app.py              # Flask app: routes, MySQL history
 ├── models.py           # Loads trained models and makes predictions
 ├── train_model.py      # Cleans data, trains and saves all three models
+├── evaluate.py         # Seeded, reproducible evaluation (metrics + confusion matrices)
 ├── heart.csv           # Dataset
 ├── *_model.pkl / ann_model.h5, scaler.pkl, *_accuracy.pkl   # Saved models and scores
 ├── templates/          # HTML pages
@@ -72,11 +73,35 @@ Python, TensorFlow/Keras, scikit-learn, Pandas, NumPy, Flask, MySQL, HTML/CSS (J
 
    Then open `http://127.0.0.1:5000`. The demo login is `admin` / `123`.
 
+## Evaluation
+
+`evaluate.py` repeats the cleaning and 80/20 split from `train_model.py` with every random seed fixed (seed 42), so results can be reproduced exactly. It reports accuracy, precision, recall, F1 and ROC-AUC for Logistic Regression, Random Forest, the ANN and the averaged ensemble, and saves the results to `results/metrics.md` and `results/confusion_matrices.png`.
+
+```bash
+python evaluate.py
+```
+
+For a screening task like this, recall (how many true disease cases are caught) matters at least as much as accuracy, so check the confusion matrices rather than accuracy alone.
+
+## Responsible use
+
+- Predictions are probabilities from small models trained on limited data. They support learning and discussion, not clinical decisions.
+- Model performance has not been checked across age or sex groups, or on data from other hospitals or countries, so it may not generalize.
+- Patient names and inputs are stored in a local MySQL database. A real deployment would need consent, access control and data-protection compliance (for example GDPR in Europe).
+
 ## Limitations
 
 - The login is a hard-coded demo account, not real authentication, and the database password is set in the source file. Do not deploy this as is.
 - Training uses a single train/test split and no hyperparameter search, so the reported accuracy is a rough estimate.
 - The dataset is small, and the three-level risk bands are a simple threshold on the averaged probability rather than a trained multiclass model.
+
+## Planned improvements
+
+- Stratified k-fold cross-validation and hyperparameter search instead of a single split
+- Probability calibration and a proper multiclass or ordinal model for risk levels
+- Explainability (for example SHAP feature importance) so predictions can be inspected
+- Fairness checks across age and sex, and validation on an external dataset
+- Real authentication and environment-based configuration for secrets
 
 ## Author
 
