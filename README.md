@@ -2,7 +2,7 @@
 
 A healthcare AI web application that estimates a patient's heart disease risk from 13 clinical measurements. It combines three models (Logistic Regression, Random Forest, and a neural network built in TensorFlow/Keras) and reports a **Low / Medium / High** risk level together with each model's probability.
 
-Final year project, BSc Software Engineering, Virtual University of Pakistan.
+Final-year research project, BS Software Engineering, Virtual University of Pakistan.
 
 > **Disclaimer:** this is an academic project, not a medical device. It must not be used for real diagnosis or treatment decisions.
 
