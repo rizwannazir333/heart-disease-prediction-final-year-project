@@ -9,6 +9,8 @@ Final year project, BSc Software Engineering, Virtual University of Pakistan.
 ## Features
 
 - Three models trained on the same preprocessed data and compared side by side
+- Leakage-safe cross-validation comparing two ways of handling missing data
+- Explainability: permutation feature importance on held-out folds
 - Neural network (ANN) with dropout regularization
 - Averaged-probability risk score mapped to Low, Medium and High
 - Flask web app with a login page, dashboard, prediction form, result page and about page
@@ -54,10 +56,12 @@ Python, TensorFlow/Keras, scikit-learn, Pandas, NumPy, Flask, MySQL, HTML/CSS (J
 ├── train_model.py      # Cleans data, trains and saves all three models
 ├── evaluate.py         # Seeded, reproducible evaluation (metrics + confusion matrices)
 ├── cross_validate.py   # Cross-validation: drop rows vs median imputation
+├── explain.py          # Explainability: permutation feature importance
 ├── test_data.py        # Dataset sanity checks (run with pytest)
 ├── MODEL_CARD.md       # Intended use, data, limitations
 ├── heart.csv           # Dataset
 ├── *_model.pkl / ann_model.h5, scaler.pkl, *_accuracy.pkl   # Saved models and scores
+├── results/            # Cross-validation and explainability results
 ├── templates/          # HTML pages
 ├── static/             # Images
 └── requirements.txt
@@ -118,7 +122,38 @@ python cross_validate.py          # Logistic Regression and Random Forest
 python cross_validate.py --ann    # also the neural network (slower)
 ```
 
+`explain.py` shows which features each model relies on, using permutation importance on held-out folds, and writes `results/feature_importance.md` and `results/feature_importance.png`.
+
+```bash
+python explain.py
+```
+
 For a screening task like this, recall (how many true disease cases are caught) matters at least as much as accuracy, so check the confusion matrices rather than accuracy alone.
+
+## Results
+
+### Cross-validated performance
+
+From `cross_validate.py` (repeated stratified 5-fold cross-validation, 15 folds, seed 42). Mean ± standard deviation across folds:
+
+| Data handling | Model | Accuracy | Recall | F1 | ROC-AUC |
+| --- | --- | --- | --- | --- | --- |
+| Drop incomplete rows (n=298) | Logistic Regression | 0.833 ± 0.040 | 0.790 ± 0.093 | 0.812 ± 0.055 | 0.902 ± 0.046 |
+| Drop incomplete rows (n=298) | Random Forest | 0.822 ± 0.057 | 0.763 ± 0.085 | 0.798 ± 0.068 | 0.903 ± 0.037 |
+| Median imputation (n=597) | Logistic Regression | 0.839 ± 0.031 | 0.771 ± 0.048 | 0.797 ± 0.039 | 0.897 ± 0.023 |
+| Median imputation (n=597) | Random Forest | 0.829 ± 0.019 | 0.747 ± 0.045 | 0.781 ± 0.026 | 0.895 ± 0.021 |
+
+**What this shows:** keeping all 597 records with median imputation gives about the same average performance as dropping half of them, but the results vary much less between folds (for example, Logistic Regression ROC-AUC spread falls from ±0.046 to ±0.023). The estimates are more reliable, which supports moving the deployed models to imputation. Recall stays below precision for both models, so missed disease cases remain the main weakness to work on. Full table: [`results/cv_results.md`](results/cv_results.md).
+
+### Which features drive the predictions
+
+From `explain.py`: permutation importance measured on held-out folds (drop in ROC-AUC when a feature is shuffled).
+
+![Permutation feature importance](results/feature_importance.png)
+
+Both models rely most on the number of major vessels (`ca`), chest pain type (`cp`), thalassemia (`thal`) and sex, while cholesterol and fasting blood sugar contribute little. Agreement between a linear and a tree-based model makes these findings more credible than either model alone. Details and Logistic Regression coefficients (direction of each effect): [`results/feature_importance.md`](results/feature_importance.md).
+
+> These scikit-learn results were reproduced with scikit-learn 1.9. Run `python evaluate.py` for the held-out metrics of all three models, including the ANN and the ensemble.
 
 ## Responsible use
 
@@ -129,7 +164,7 @@ For a screening task like this, recall (how many true disease cases are caught) 
 ## Limitations
 
 - The login is a single shared demo account with a plain-text password, not real authentication. Do not deploy this as is.
-- Training uses a single train/test split and no hyperparameter search, so reported accuracy is a rough estimate.
+- The deployed models are trained on a single train/test split with no hyperparameter search. Cross-validated estimates are in the Results section.
 - Only 298 complete records are used and the test set is about 60 patients, so results will vary a lot between splits.
 - The three-level risk bands are a simple threshold on the averaged probability, not a trained multiclass model.
 
@@ -137,12 +172,12 @@ For a screening task like this, recall (how many true disease cases are caught) 
 
 - Hyperparameter search (cross-validation is already available in `cross_validate.py`)
 - Probability calibration and a proper multiclass or ordinal model for risk levels
-- Explainability (for example SHAP feature importance) so predictions can be inspected
+- Per-patient explanations (for example SHAP) on top of the global feature importance in `explain.py`
 - Fairness checks across age and sex, and validation on an external dataset
 - Retrain the deployed models with imputation if `cross_validate.py` shows it helps, instead of dropping about half of the records
 - Real authentication with hashed passwords and per-user accounts
 
 ## Author
 
-**Rizwan Ali**, Entry-Level AI Engineer  
+**Rizwan Ali**, AI Engineer Intern and aspiring AI researcher  
 [GitHub](https://github.com/rizwannazir333) · [LinkedIn](https://linkedin.com/in/rizwan-ali-ai-engineer)

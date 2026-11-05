@@ -27,10 +27,23 @@ Three models estimate whether a patient has heart disease from 13 clinical measu
 
 Run `python evaluate.py` to produce accuracy, precision, recall, F1, ROC-AUC and confusion matrices for each model and the ensemble, saved in `results/`. The test set is small (about 60 patients), so treat any single result as a rough estimate.
 
+Cross-validated results from `cross_validate.py` (15 folds, seed 42), on the 298 complete records:
+
+| Model | Accuracy | Recall | ROC-AUC |
+| --- | --- | --- | --- |
+| Logistic Regression | 0.833 ± 0.040 | 0.790 ± 0.093 | 0.902 ± 0.046 |
+| Random Forest | 0.822 ± 0.057 | 0.763 ± 0.085 | 0.903 ± 0.037 |
+
+Median imputation on all 597 records gives similar averages with about half the variability between folds.
+
+## Explainability
+
+`explain.py` measures permutation importance on held-out folds. Both models rely most on the number of major vessels, chest pain type, thalassemia and sex. Explanations are global (whole dataset), not per patient.
+
 ## Limitations and risks
 
 - Small dataset with half of the records removed for missing values, which may bias the remaining sample.
-- No cross-validation, calibration, or hyperparameter search.
+- The deployed models use a single split, with no calibration or hyperparameter search (cross-validated estimates are reported above).
 - No analysis of performance across age or sex groups, and no external validation.
 - The risk bands are fixed probability thresholds and have not been validated against clinical risk categories.
 - A false negative (missing a patient with disease) is the more serious error in screening, so recall should be checked alongside accuracy.
