@@ -6,6 +6,16 @@ Final year project (Grade A), BS Hons Software Engineering, Virtual University o
 
 > **Disclaimer:** this is an academic project, not a medical device. It must not be used for real diagnosis or treatment decisions.
 
+## Screenshots
+
+![Prediction result: High risk with each model's probability](docs/heartcare_result.jpg)
+
+| Patient data form | Prediction history (MySQL) |
+| --- | --- |
+| ![Patient data form](docs/heartcare_form.jpg) | ![Prediction history](docs/heartcare_history.jpg) |
+
+The patients shown are sample records from `heart.csv`. A 16-second demo video is on the [portfolio](https://rizwannazir333.github.io/portfolio-rizwan/#projects).
+
 ## Features
 
 - Three models trained on the same preprocessed data and compared side by side
