@@ -14,6 +14,8 @@ Final year project (Grade A), BS Hons Software Engineering, Virtual University o
 | --- | --- |
 | ![Patient data form](docs/heartcare_form.jpg) | ![Prediction history](docs/heartcare_history.jpg) |
 
+**[Try the live web app](https://rizwannazir333.github.io/portfolio-rizwan/app/)**: the same trained models running in your browser (history is kept in the browser instead of MySQL).
+
 The patients shown are sample records from `heart.csv`. A 16-second demo video is on the [portfolio](https://rizwannazir333.github.io/portfolio-rizwan/#projects).
 
 ## Features
