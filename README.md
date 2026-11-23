@@ -191,6 +191,6 @@ Both models rely most on the number of major vessels (`ca`), chest pain type (`c
 
 ## Author
 
-**Rizwan Ali**, AI Engineer at IFFCO Group (UAE) and BS Hons Software Engineering graduate  
+**Rizwan Ali**, Junior Data Scientist at IFFCO Group (UAE) and BS Hons Software Engineering graduate  
 [Portfolio](https://rizwannazir333.github.io/portfolio-rizwan/) · 
 [GitHub](https://github.com/rizwannazir333) · [LinkedIn](https://linkedin.com/in/rizwan-ali-ai-engineer) · rizwan_nazir@163.com · mrizwan8499@gmail.com
